@@ -1,0 +1,26 @@
+{
+  "name": "instagram-cards",
+  "version": "1.0.0",
+  "description": "CLI tool to generate Instagram carousel cards for Voile Drift",
+  "license": "ISC",
+  "author": "",
+  "type": "module",
+  "bin": {
+    "instagram-cards": "./src/index.ts"
+  },
+  "scripts": {
+    "generate": "tsx src/index.ts generate",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "typescript": "^5.9.3"
+  },
+  "dependencies": {
+    "@google/generative-ai": "^0.21.0",
+    "@napi-rs/canvas": "^0.1.65",
+    "commander": "^13.0.0",
+    "dotenv": "^16.4.0",
+    "tsx": "^4.19.0"
+  }
+}
