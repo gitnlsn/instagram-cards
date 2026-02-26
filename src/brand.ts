@@ -1,12 +1,16 @@
 export const BRAND = {
   name: "Voile Drift",
   tagline: "Your calendar, supercharged with AI.",
+  url: "www.voile-drift.store",
   colors: {
     primary: "#B71C1C",
     white: "#FFFFFF",
     darkBg: "#1a1a1a",
     darkBgLight: "#2a2a2a",
     textMuted: "#aaaaaa",
+    lightBg: "#F5F0EB",
+    textDark: "#1a1a1a",
+    textBody: "#3a3a3a",
   },
   card: {
     width: 1080,
@@ -21,5 +25,5 @@ Key product details:
 - Tone: modern, confident, clean, slightly bold — not corporate or generic
 - The app helps people remember what matters and learn from their own experience
 
-You write concise, punchy Instagram carousel copy. Each card should be scannable in 2-3 seconds.`,
+You write readable and thoughtful Instagram carousel copy.`,
 } as const;

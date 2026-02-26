@@ -25,10 +25,10 @@ export async function generateCardContent(
 
 Rules:
 - Card 1 is the hook/title card: short, bold headline (max 8 words) + a one-line subtitle
-- Cards 2 through ${cardCount - 1} are content cards: each has a title (3-6 words) and body (1-3 short sentences)
-- Card ${cardCount} is the CTA card: compelling call to action for Voile Drift
+- Cards 2 through ${cardCount - 1} are content cards: each has a title (3-8 words) and body (3-6 sentences, paragraph-style)
+- Card ${cardCount} is the CTA card: compelling call to action for Voile Drift (website: ${BRAND.url})
 - Each card can optionally have a "footnote" (short extra context, max 8 words)
-- Keep text SHORT — this is for Instagram, not a blog
+- Body text should be readable and thoughtful — write proper paragraphs, not bullet points
 
 Return ONLY valid JSON — an array of objects with "title", "body", and optionally "footnote". No markdown fences, no explanation.`;
 
