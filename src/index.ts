@@ -2,6 +2,7 @@ import "dotenv/config";
 import { Command } from "commander";
 import { generateCardContent } from "./gemini.js";
 import { renderCards } from "./renderer.js";
+import { STYLES } from "./styles.js";
 
 const program = new Command();
 
@@ -15,6 +16,7 @@ program
   .description("Generate a set of carousel cards")
   .requiredOption("--topic <topic>", "Topic or theme for the carousel")
   .option("--cards <count>", "Number of cards to generate", "5")
+  .option("--style <style>", "Carousel style (educational, myths, tips, storytelling)", "educational")
   .option("--output <dir>", "Output directory", "./output")
   .action(async (opts) => {
     const cardCount = parseInt(opts.cards, 10);
@@ -24,10 +26,16 @@ program
       process.exit(1);
     }
 
-    console.log(`\nGenerating ${cardCount} cards for: "${opts.topic}"\n`);
+    const style = STYLES[opts.style];
+    if (!style) {
+      console.error(`Error: unknown style "${opts.style}". Available: ${Object.keys(STYLES).join(", ")}`);
+      process.exit(1);
+    }
+
+    console.log(`\nGenerating ${cardCount} cards for: "${opts.topic}" (style: ${style.name})\n`);
 
     console.log("Calling Gemini for content...");
-    const cards = await generateCardContent(opts.topic, cardCount);
+    const cards = await generateCardContent(opts.topic, cardCount, style);
     console.log("Content generated. Rendering cards...\n");
 
     for (const [i, card] of cards.entries()) {

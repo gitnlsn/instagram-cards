@@ -50,12 +50,21 @@ export function drawCard(
   total: number
 ): void {
   const { width, height } = BRAND.card;
+  const isFirst = index === 0;
   const isLast = index === total - 1;
+  const isMiddle = !isFirst && !isLast;
   const centerX = width / 2;
 
   // Background — light cream
   ctx.fillStyle = BRAND.colors.lightBg;
   ctx.fillRect(0, 0, width, height);
+
+  // --- Slide counter (top-right) ---
+  ctx.font = "400 18px Inter";
+  ctx.fillStyle = BRAND.colors.textMuted;
+  ctx.textAlign = "right";
+  ctx.textBaseline = "top";
+  ctx.fillText(`${index + 1}/${total}`, width - PAD_X, 40);
 
   // --- Brand handle at top (centered, small, spaced letters) ---
   const handleY = 60;
@@ -67,15 +76,18 @@ export function drawCard(
   ctx.fillText("voiledrift", centerX, handleY);
   ctx.letterSpacing = "0px";
 
+  // --- Bottom engagement cue height (reserve space) ---
+  const bottomCueH = (isFirst || isMiddle) ? 30 : 0;
+  const bottomCueMargin = (isFirst || isMiddle) ? 16 : 0;
+
   // --- Content area ---
   const contentTop = handleY + 60;
-  const contentBottom = height - PAD_Y;
+  const contentBottom = height - PAD_Y - bottomCueH - bottomCueMargin;
   const contentHeight = contentBottom - contentTop;
 
   // Pre-calculate all element heights
   const titleFontSize = 48;
   const titleLineHeight = titleFontSize * 1.2;
-  const titleMarginBottom = 0; // divider provides spacing
 
   const dividerMarginTop = 36;
   const dividerH = 3;
@@ -93,13 +105,13 @@ export function drawCard(
   const bodyMaxWidth = Math.min(880, CONTENT_WIDTH);
   const bodyLines = wrapText(ctx, card.body, bodyMaxWidth);
 
-  // CTA height (last card only)
-  const ctaH = isLast ? 28 + 24 * 2 : 0;
+  // CTA heights (last card only)
+  const ctaBtnH = isLast ? 28 + 24 * 2 : 0;
   const ctaMarginTop = isLast ? 40 : 0;
-
-  // URL height (last card only)
   const urlH = isLast ? 22 : 0;
   const urlMarginTop = isLast ? 20 : 0;
+  const shareH = isLast && card.sharePrompt ? 20 : 0;
+  const shareMarginTop = isLast && card.sharePrompt ? 20 : 0;
 
   // Footnote
   const footnoteH = card.footnote ? 20 : 0;
@@ -107,15 +119,15 @@ export function drawCard(
 
   // Total content height
   const totalContentH =
-    titleLines.length * titleLineHeight + titleMarginBottom +
+    titleLines.length * titleLineHeight +
     dividerMarginTop + dividerH + dividerMarginBottom +
     bodyLines.length * bodyLineHeight +
-    ctaMarginTop + ctaH +
+    ctaMarginTop + ctaBtnH +
     urlMarginTop + urlH +
+    shareMarginTop + shareH +
     footnoteMarginTop + footnoteH;
 
-  let y: number;
-  y = contentTop + Math.max(0, (contentHeight - totalContentH) / 2);
+  let y = contentTop + Math.max(0, (contentHeight - totalContentH) / 2);
 
   // --- Title (centered) ---
   ctx.font = `800 ${titleFontSize}px Inter`;
@@ -146,10 +158,12 @@ export function drawCard(
     y += bodyLineHeight;
   }
 
-  // --- CTA (last card, centered) ---
+  // --- CTA (last card) ---
   if (isLast) {
     y += ctaMarginTop;
-    const ctaText = "Try Voile Drift →";
+
+    // Follow button
+    const ctaText = `Follow ${BRAND.handle}`;
     ctx.font = "700 28px Inter";
     const ctaTextWidth = ctx.measureText(ctaText).width;
     const ctaPadX = 48;
@@ -168,12 +182,27 @@ export function drawCard(
 
     y += ctaTotalH + urlMarginTop;
 
-    // URL below CTA (centered)
+    // URL below button (secondary, muted)
     ctx.font = "400 22px Inter";
-    ctx.fillStyle = BRAND.colors.textBody;
+    ctx.fillStyle = BRAND.colors.textMuted;
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     ctx.fillText(BRAND.url, centerX, y);
+    y += urlH;
+
+    // Share prompt
+    if (card.sharePrompt) {
+      y += shareMarginTop;
+      ctx.font = "italic 400 20px Inter";
+      ctx.fillStyle = BRAND.colors.textMuted;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "top";
+      const shareLines = wrapText(ctx, card.sharePrompt, bodyMaxWidth);
+      for (const line of shareLines) {
+        ctx.fillText(line, centerX, y);
+        y += 28;
+      }
+    }
   }
 
   // --- Footnote ---
@@ -184,5 +213,20 @@ export function drawCard(
     ctx.textAlign = "center";
     ctx.textBaseline = "top";
     ctx.fillText(card.footnote.toUpperCase(), centerX, footnoteY);
+  }
+
+  // --- Bottom engagement cues ---
+  if (isFirst) {
+    ctx.font = "400 20px Inter";
+    ctx.fillStyle = BRAND.colors.textMuted;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText("Swipe →", centerX, height - PAD_Y + 10);
+  } else if (isMiddle) {
+    ctx.font = "400 18px Inter";
+    ctx.fillStyle = BRAND.colors.textMuted;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText("Save this for later", centerX, height - PAD_Y + 10);
   }
 }

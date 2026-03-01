@@ -1,15 +1,18 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 import { BRAND } from "./brand.js";
+import type { CarouselStyle } from "./styles.js";
 
 export interface CardContent {
   title: string;
   body: string;
   footnote?: string;
+  sharePrompt?: string;
 }
 
 export async function generateCardContent(
   topic: string,
-  cardCount: number
+  cardCount: number,
+  style: CarouselStyle
 ): Promise<CardContent[]> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey || apiKey === "your-api-key-here") {
@@ -21,21 +24,30 @@ export async function generateCardContent(
   const genAI = new GoogleGenerativeAI(apiKey);
   const model = genAI.getGenerativeModel({ model: "gemini-2.5-flash-lite" });
 
-  const prompt = `Generate Instagram carousel content for ${cardCount} cards about: "${topic}"
+  const prompt = style.promptTemplate(topic, cardCount, BRAND.url);
 
-Rules:
-- Card 1 is the hook/title card: short, bold headline (max 8 words) + a one-line subtitle
-- Cards 2 through ${cardCount - 1} are content cards: each has a title (3-8 words) and body (3-6 sentences, paragraph-style)
-- Card ${cardCount} is the CTA card: compelling call to action for Voile Drift (website: ${BRAND.url})
-- Each card can optionally have a "footnote" (short extra context, max 8 words)
-- Body text should be readable and thoughtful — write proper paragraphs, not bullet points
+  let result;
+  for (let attempt = 0; attempt < 3; attempt++) {
+    try {
+      result = await model.generateContent({
+        contents: [{ role: "user", parts: [{ text: prompt }] }],
+        systemInstruction: { role: "model", parts: [{ text: BRAND.systemPrompt }] },
+      });
+      break;
+    } catch (err: any) {
+      if (err.status === 503 && attempt < 2) {
+        const delay = (attempt + 1) * 2000;
+        console.log(`Gemini 503 — retrying in ${delay / 1000}s (attempt ${attempt + 2}/3)...`);
+        await new Promise((r) => setTimeout(r, delay));
+        continue;
+      }
+      throw err;
+    }
+  }
 
-Return ONLY valid JSON — an array of objects with "title", "body", and optionally "footnote". No markdown fences, no explanation.`;
-
-  const result = await model.generateContent({
-    contents: [{ role: "user", parts: [{ text: prompt }] }],
-    systemInstruction: { role: "model", parts: [{ text: BRAND.systemPrompt }] },
-  });
+  if (!result) {
+    throw new Error("Gemini failed after 3 attempts");
+  }
 
   const text = result.response.text().trim();
 

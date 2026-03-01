@@ -1,5 +1,6 @@
 export const BRAND = {
   name: "Voile Drift",
+  handle: "@voiledrift",
   tagline: "Your calendar, supercharged with AI.",
   url: "www.voile-drift.store",
   colors: {
@@ -25,5 +26,7 @@ Key product details:
 - Tone: modern, confident, clean, slightly bold — not corporate or generic
 - The app helps people remember what matters and learn from their own experience
 
-You write readable and thoughtful Instagram carousel copy.`,
+Primary goal: grow Instagram followers. Every carousel should hook viewers, deliver genuine value, and end with a compelling reason to follow @voiledrift for more content.
+
+You write readable and thoughtful Instagram carousel copy optimized for saves, shares, and follows.`,
 } as const;
